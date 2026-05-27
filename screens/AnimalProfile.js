@@ -1,0 +1,222 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
+import { supabase } from '../lib/supabase';
+import globalStyles from '../styles/global';
+import { colors } from '../constants/colors';
+import * as ImagePicker from 'expo-image-picker';
+ 
+export default function AnimalProfile() {
+  const [tab, setTab] = useState('infos');
+  const [animal, setAnimal] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+ 
+  useEffect(() => { loadAnimal(); }, []);
+ 
+  const loadAnimal = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase.from('animals').select('*').eq('user_id', user.id).limit(1);
+      if (data && data.length > 0) {
+        setAnimal(data[0]);
+        const { data: journalData } = await supabase.from('journal_entries').select('*').eq('animal_id', data[0].id).order('entry_date', { ascending: false });
+        if (journalData) setEntries(journalData);
+      }
+    } catch (e) { console.error(e); }
+    setLoading(false);
+  };
+ 
+  const getAge = (birthdate) => {
+    if (!birthdate) return null;
+    return Math.floor((Date.now() - new Date(birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365));
+  };
+ 
+  const getHumanAge = (birthdate, species) => {
+    const age = getAge(birthdate);
+    if (!age) return null;
+    if (species === 'Chien') return age < 2 ? age * 15 : age < 6 ? 24 + (age - 2) * 5 : 64 + (age - 6) * 4;
+    if (species === 'Chat') return age < 2 ? age * 12 : 24 + (age - 2) * 4;
+    return null;
+  };
+
+if (loading) return (
+  <View style={globalStyles.center}>
+    <ActivityIndicator size="large" color={colors.primary} />
+  </View>
+);
+ 
+  if (!animal) return (
+  <View style={globalStyles.center}>
+    <Text style={{ fontSize: 60, marginBottom: 16 }}>🐾</Text>
+    <Text style={{ fontSize: 18, color: colors.textDark }}>Aucun animal ajouté</Text>
+  </View>
+);
+  const age = getAge(animal.birthdate);
+  const humanAge = getHumanAge(animal.birthdate, animal.species);
+ 
+  const getAnimalEmoji = (species) => {
+    const map = { 'Chat': '🐱', 'Lapin': '🐰', 'Oiseau': '🐦' };
+    return map[species] || '🐕';
+  };
+
+  const infos = [
+    ['🐾', 'Espèce', animal.species],
+    ['🐕', 'Race', animal.breed],
+    ['🎂', 'Naissance', animal.birthdate],
+    ['⚖️', 'Poids', animal.weight ? `${animal.weight} kg` : null],
+    ['🏥', 'Vétérinaire', animal.vet_name],
+    ['📞', 'Téléphone', animal.vet_phone],
+    ['⚕️', 'Pathologies', animal.pathologies],
+  ].filter(([_, __, val]) => val);
+ 
+  
+  const pickAndUploadPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('On a besoin de la permission pour accéder à tes photos 🐾');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled) await uploadAnimalPhoto(result.assets[0].uri);
+  };
+ 
+const uploadAnimalPhoto = async (uri) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const filename = `${user.id}/animal_${animal.id}.jpg`;
+ 
+    // Supprimer l'ancienne photo si elle existe
+    await supabase.storage.from('photos').remove([filename]);
+ 
+    // Uploader la nouvelle
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const { error } = await supabase.storage.from('photos').upload(filename, blob, {
+      contentType: 'image/jpeg',
+    });
+ 
+    if (error) {
+      console.error('Upload error:', error);
+      alert('Erreur lors de l\'upload : ' + error.message);
+      return;
+    }
+ 
+    // Ajouter un timestamp pour forcer le rechargement
+    const { data } = supabase.storage.from('photos').getPublicUrl(filename);
+    const photoUrlWithTimestamp = `${data.publicUrl}?t=${Date.now()}`;
+ 
+    await supabase.from('animals').update({ photo_url: photoUrlWithTimestamp }).eq('id', animal.id);
+    setAnimal({ ...animal, photo_url: photoUrlWithTimestamp });
+ 
+  } catch (e) {
+    console.error('Error:', e);
+    alert('Une erreur est survenue');
+  }
+};
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Header */}
+      <View style={[globalStyles.header, { paddingBottom: 28 }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 16 }}>
+          {/* Photo cliquable */}
+          <TouchableOpacity onPress={pickAndUploadPhoto} style={globalStyles.animalAvatar}>
+            {animal.photo_url ? (
+              <Image
+                source={{ uri: animal.photo_url }}
+                style={{ width: 80, height: 80, borderRadius: 24 }}
+              />
+            ) : (
+              <>
+                <Text style={{ fontSize: 44 }}>{getAnimalEmoji(animal.species)}</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, marginTop: 2 }}>
+                  Modifier
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+ 
+          <View>
+            <Text style={{ color: 'white', fontSize: 28, fontWeight: '300' }}>{animal.name}</Text>
+            <Text style={{ color: colors.whiteAlpha80, fontSize: 14 }}>
+              {animal.breed || animal.species}{age ? ` · ${age} ans` : ''}
+            </Text>
+            {humanAge && (
+              <View style={globalStyles.ageBadge}>
+                <Text style={{ color: 'white', fontSize: 12 }}>🧬 Âge humain : {humanAge} ans</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+ 
+      {/* Stats */}
+      <View style={globalStyles.statsBar}>
+        {[
+          ['📷', '0', 'Photos'],
+          ['📖', entries.length.toString(), 'Souvenirs'],
+          ['🐾', age ? age.toString() : '?', 'Années'],
+        ].map(([icon, val, label], i) => (
+          <View key={i} style={{ alignItems: 'center' }}>
+            <Text style={{ fontSize: 18 }}>{icon}</Text>
+            <Text style={globalStyles.statVal}>{val}</Text>
+            <Text style={globalStyles.statLabel}>{label}</Text>
+          </View>
+        ))}
+      </View>
+ 
+      {/* Tabs */}
+      <View style={globalStyles.tabBar}>
+        {[['infos', '📋 Infos'], ['journal', '📖 Journal']].map(([key, label]) => (
+          <TouchableOpacity
+            key={key}
+            style={[globalStyles.tabBtn, tab === key && globalStyles.tabBtnActive]}
+            onPress={() => setTab(key)}
+          >
+            <Text style={[globalStyles.tabLabel, { color: tab === key ? colors.primary : colors.textLight }]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+ 
+      {/* Contenu */}
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 20 }}>
+        {tab === 'infos' && infos.map(([icon, label, value], i) => (
+          <View key={i} style={globalStyles.infoCard}>
+            <Text style={{ fontSize: 20 }}>{icon}</Text>
+            <View style={{ marginLeft: 14 }}>
+              <Text style={globalStyles.infoLabel}>{label}</Text>
+              <Text style={globalStyles.infoValue}>{value}</Text>
+            </View>
+          </View>
+        ))}
+ 
+        {tab === 'journal' && (
+          entries.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: colors.textLight, marginTop: 40 }}>
+              Aucun souvenir pour le moment
+            </Text>
+          ) : entries.map((e, i) => (
+            <View key={i} style={globalStyles.journalCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <Text style={globalStyles.journalEmoji}>{e.emoji || '🐾'}</Text>
+                <View>
+                  <Text style={globalStyles.entryTitle}>{e.title}</Text>
+                  <Text style={globalStyles.entryDate}>{e.entry_date}</Text>
+                </View>
+              </View>
+              {e.content ? <Text style={globalStyles.memoryText}>{e.content}</Text> : null}
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+ 
