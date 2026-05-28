@@ -20,11 +20,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": false,
+      "package": "com.sandra33.pawstory"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": "une app pour la vie de son animal"
+    "description": "une app pour la vie de son animal",
+    "extra": {
+      "eas": {
+        "projectId": "7ca24664-cc99-49be-a217-b09cdc8c1b16"
+      }
+    }
   }
 }

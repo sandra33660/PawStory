@@ -5,6 +5,8 @@ import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import BackHeader from '../components/BackHeader';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
  
 const emojis = ['🐾', '🌲', '🎂', '☀️', '🌊', '❤️', '🏠', '✈️', '🎉', '💊'];
  
@@ -38,9 +40,8 @@ export default function Journal() {
   const uploadPhoto = async (uri) => {
     const { data: { user } } = await supabase.auth.getUser();
     const filename = `${user.id}/${Date.now()}.jpg`;
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const { error } = await supabase.storage.from('photos').upload(filename, blob, {
+    const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+    const { error } = await supabase.storage.from('photos').upload(filename, decode(base64), {
       contentType: 'image/jpeg',
     });
     if (error) throw error;

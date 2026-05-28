@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
  
 export default function AnimalProfile() {
   const [tab, setTab] = useState('infos');
@@ -94,10 +96,12 @@ const uploadAnimalPhoto = async (uri) => {
     await supabase.storage.from('photos').remove([filename]);
  
     // Uploader la nouvelle
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const { error } = await supabase.storage.from('photos').upload(filename, blob, {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: 'base64',
+    });
+    const { error } = await supabase.storage.from('photos').upload(filename, decode(base64), {
       contentType: 'image/jpeg',
+      upsert: true,
     });
  
     if (error) {
