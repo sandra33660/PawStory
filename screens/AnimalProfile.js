@@ -232,9 +232,9 @@ const uploadAnimalPhoto = async (uri) => {
           <Text style={[globalStyles.sectionTitle, { marginBottom: 16 }]}>MODIFIER LA FICHE</Text>
           {[
             ['Nom', 'name', "Nom de l'animal"],
+            ['Surnom', 'nickname', 'Petit nom affectueux...'],
             ['Espèce', 'species', 'Chien, Chat...'],
             ['Race', 'breed', 'Labrador...'],
-            ['Date de naissance', 'birthdate', 'YYYY-MM-DD'],
             ['Poids (kg)', 'weight', '24'],
             ['Vétérinaire', 'vet_name', 'Nom du vétérinaire'],
             ['Téléphone véto', 'vet_phone', '06...'],
@@ -248,6 +248,26 @@ const uploadAnimalPhoto = async (uri) => {
                 onChangeText={v => setEditData(d => ({ ...d, [key]: v }))}
                 placeholder={placeholder}
                 placeholderTextColor={colors.textDisabled}
+          <View style={{ marginBottom: 12 }}>
+            <Text style={globalStyles.infoLabel}>Date de naissance</Text>
+            <TouchableOpacity style={globalStyles.input} onPress={() => setShowDatePicker(true)}>
+              <Text style={{ color: editData.birthdate ? colors.textDark : colors.textDisabled, fontSize: 15 }}>
+                {editData.birthdate ? formatDateFR(editData.birthdate) : "Sélectionner une date..."}
+              </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={editData.birthdate ? new Date(editData.birthdate) : new Date()}
+                mode="date"
+                display="default"
+                maximumDate={new Date()}
+                onChange={(event, date) => {
+                  setShowDatePicker(false);
+                  if (date) setEditData(d => ({ ...d, birthdate: toSupabaseDate(date) }));
+                }}
+              />
+            )}
+          </View>
               />
             </View>
           ))}
