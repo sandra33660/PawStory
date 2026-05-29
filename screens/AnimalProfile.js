@@ -66,6 +66,7 @@ if (loading) return (
 
   const infos = [
     ['🐾', 'Espèce', animal.species],
+    ['💝', 'Surnom', animal.nickname],
     ['🐕', 'Race', animal.breed],
     ['🎂', 'Naissance', animal.birthdate],
     ['⚖️', 'Poids', animal.weight ? `${animal.weight} kg` : null],
