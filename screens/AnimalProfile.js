@@ -92,6 +92,26 @@ if (loading) return (
     if (!result.canceled) await uploadAnimalPhoto(result.assets[0].uri);
   };
  
+const saveEdit = async () => {
+    try {
+      await supabase.from('animals').update({
+        name: editData.name,
+        species: editData.species,
+        breed: editData.breed,
+        birthdate: editData.birthdate,
+        weight: editData.weight ? parseFloat(editData.weight) : null,
+        vet_name: editData.vet_name,
+        vet_phone: editData.vet_phone,
+        pathologies: editData.pathologies,
+        nickname: editData.nickname,
+      }).eq('id', animal.id);
+      setAnimal({ ...animal, ...editData, weight: editData.weight ? parseFloat(editData.weight) : null });
+      setEditMode(false);
+    } catch (e) {
+      Alert.alert('Erreur', 'Impossible de sauvegarder');
+    }
+  };
+
 const uploadAnimalPhoto = async (uri) => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
