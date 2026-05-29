@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
@@ -10,6 +10,8 @@ import { decode } from 'base64-arraybuffer';
  
 export default function AnimalProfile() {
   const [tab, setTab] = useState('infos');
+  const [editMode, setEditMode] = useState(false);
+  const [editData, setEditData] = useState({});
   const [animal, setAnimal] = useState(null);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -147,7 +149,13 @@ const uploadAnimalPhoto = async (uri) => {
           </TouchableOpacity>
  
           <View>
-            <Text style={{ color: 'white', fontSize: 28, fontWeight: '300' }}>{animal.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: 'white', fontSize: 28, fontWeight: '300' }}>{animal.name}</Text>
+              <TouchableOpacity onPress={() => { setEditData({ ...animal, weight: animal.weight?.toString() }); setEditMode(true); }}
+                style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: 8 }}>
+                <Text style={{ color: 'white', fontSize: 16 }}>✏️ Modifier</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={{ color: colors.whiteAlpha80, fontSize: 14 }}>
               {animal.breed || animal.species}{age ? ` · ${age} ans` : ''}
             </Text>
@@ -194,8 +202,42 @@ const uploadAnimalPhoto = async (uri) => {
         ))}
       </View>
  
+      {/* Formulaire modification */}
+      {editMode && (
+        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
+          <Text style={[globalStyles.sectionTitle, { marginBottom: 16 }]}>MODIFIER LA FICHE</Text>
+          {[
+            ['Nom', 'name', 'Nom de l'animal'],
+            ['Espèce', 'species', 'Chien, Chat...'],
+            ['Race', 'breed', 'Labrador...'],
+            ['Date de naissance', 'birthdate', 'YYYY-MM-DD'],
+            ['Poids (kg)', 'weight', '24'],
+            ['Vétérinaire', 'vet_name', 'Nom du vétérinaire'],
+            ['Téléphone véto', 'vet_phone', '06...'],
+            ['Pathologies', 'pathologies', 'Aucune...'],
+          ].map(([label, key, placeholder]) => (
+            <View key={key} style={{ marginBottom: 12 }}>
+              <Text style={globalStyles.infoLabel}>{label}</Text>
+              <TextInput
+                style={globalStyles.input}
+                value={editData[key] || ''}
+                onChangeText={v => setEditData(d => ({ ...d, [key]: v }))}
+                placeholder={placeholder}
+                placeholderTextColor={colors.textDisabled}
+              />
+            </View>
+          ))}
+          <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.primary }]} onPress={saveEdit}>
+            <Text style={globalStyles.btnText}>💾 Enregistrer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[globalStyles.btnOutline, { borderColor: colors.primary }]} onPress={() => setEditMode(false)}>
+            <Text style={[globalStyles.btnOutlineText, { color: colors.primary }]}>Annuler</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
+
       {/* Contenu */}
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 20 }}>
+      {!editMode && <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 20 }}>
         {tab === 'infos' && infos.map(([icon, label, value], i) => (
           <View key={i} style={globalStyles.infoCard}>
             <Text style={{ fontSize: 20 }}>{icon}</Text>
@@ -224,7 +266,7 @@ const uploadAnimalPhoto = async (uri) => {
             </View>
           ))
         )}
-      </ScrollView>
+      </ScrollView>}
     </View>
   );
 }
