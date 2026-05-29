@@ -15,6 +15,8 @@ import AnimalProfile from './screens/AnimalProfile.js';
 // Components
 import BottomNav from './components/BottomNav.js';
 import Profile from './screens/Profile.js';
+import PrivacyPolicy from './screens/PrivacyPolicy.js';
+import LegalNotice from './screens/LegalNotice.js';
  
 // Styles
 import { colors } from './constants/colors';
@@ -26,6 +28,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [fromAuth, setFromAuth] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showLegal, setShowLegal] = useState(false);
  
   useEffect(() => {
     const init = async () => {
@@ -76,10 +80,15 @@ export default function App() {
     />
   );
  
+  if (showPrivacy) return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />;
+  if (showLegal) return <LegalNotice onBack={() => setShowLegal(false)} />;
+
   if (showProfile) return (
     <Profile
       onBack={() => setShowProfile(false)}
       onLogout={() => { setShowProfile(false); setScreen('welcome'); }}
+      onPrivacy={() => setShowPrivacy(true)}
+      onLegal={() => setShowLegal(true)}
     />
   );
 
