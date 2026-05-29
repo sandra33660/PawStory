@@ -272,8 +272,6 @@ const uploadAnimalPhoto = async (uri) => {
               />
             )}
           </View>
-              />
-            </View>
           ))}
           <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.primary }]} onPress={saveEdit}>
             <Text style={globalStyles.btnText}>💾 Enregistrer</Text>
