@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import * as ImagePicker from 'expo-image-picker';

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { supabase } from '../lib/supabase';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import BackHeader from '../components/BackHeader';
@@ -14,7 +16,8 @@ export default function Health() {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [type, setType] = useState('Vaccin');
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [repeat, setRepeat] = useState('');
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState([]);
@@ -47,10 +50,10 @@ export default function Health() {
           animal_id: animals[0].id,
           title: title.trim(),
           type,
-          due_date: dueDate || null,
+          due_date: dueDate ? toSupabaseDate(dueDate) : null,
           repeat_every_days: repeat ? parseInt(repeat) : null,
         });
-        setTitle(''); setDueDate(''); setRepeat('');
+        setTitle(''); setDueDate(null); setRepeat('');
         setShowForm(false);
         loadReminders();
       }
@@ -82,7 +85,23 @@ export default function Health() {
         <TextInput style={globalStyles.input} placeholder="Ex : Vaccin rage..." placeholderTextColor={colors.textDisabled} value={title} onChangeText={setTitle} />
  
         <Text style={globalStyles.sectionTitle}>DATE D'ÉCHÉANCE</Text>
-        <TextInput style={globalStyles.input} placeholder="Ex : 2026-06-15" placeholderTextColor={colors.textDisabled} value={dueDate} onChangeText={setDueDate} />
+        <TouchableOpacity style={globalStyles.input} onPress={() => setShowDatePicker(true)}>
+          <Text style={{ color: dueDate ? colors.textDark : colors.textDisabled, fontSize: 15 }}>
+            {dueDate ? formatDateFR(toSupabaseDate(dueDate)) : 'Sélectionner une date...'}
+          </Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={dueDate || new Date()}
+            mode="date"
+            display="default"
+            minimumDate={new Date()}
+            onChange={(event, date) => {
+              setShowDatePicker(false);
+              if (date) setDueDate(date);
+            }}
+          />
+        )}
  
         <Text style={globalStyles.sectionTitle}>RÉPÉTER TOUS LES (jours)</Text>
         <TextInput style={globalStyles.input} placeholder="Ex : 90 pour tous les 3 mois" placeholderTextColor={colors.textDisabled} value={repeat} onChangeText={setRepeat} keyboardType="numeric" />
@@ -131,7 +150,7 @@ export default function Health() {
                 <Text style={[globalStyles.reminderTitle, { textDecorationLine: isDone ? 'line-through' : 'none' }]}>{r.title}</Text>
                 {r.repeat_every_days && <Text style={{ fontSize: 11, color: colors.textLight }}>🔁 Tous les {r.repeat_every_days} jours</Text>}
                 <Text style={[globalStyles.reminderDate, { color: isDone ? '#C8DBC9' : urgent ? colors.urgent : colors.health }]}>
-                  {isDone ? '✓ Fait' : r.due_date || 'Pas de date'}
+                  {isDone ? '✓ Fait' : r.due_date ? formatDateFR(r.due_date) : 'Pas de date'}
                 </Text>
               </View>
               {urgent && !isDone && <View style={globalStyles.urgentBadge}><Text style={globalStyles.urgentText}>Urgent</Text></View>}

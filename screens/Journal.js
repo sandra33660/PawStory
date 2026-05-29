@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Image, Share } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import BackHeader from '../components/BackHeader';
@@ -102,7 +103,7 @@ export default function Journal() {
     <KeyboardAvoidingView key={formKey} style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <BackHeader
         title="Nouveau souvenir"
-        subtitle={`${animalName} 👑 · Aujourd'hui`}
+        subtitle={`${animalName} 👑 · {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`}
         color={colors.journal}
         onBack={() => {
           setShowForm(false);
@@ -175,7 +176,7 @@ export default function Journal() {
               <Text style={globalStyles.journalEmoji}>{e.emoji || '🐾'}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={globalStyles.entryTitle}>{e.title}</Text>
-                <Text style={globalStyles.entryDate}>{e.entry_date}</Text>
+                <Text style={globalStyles.entryDate}>{formatDateFR(e.entry_date)}</Text>
               </View>
             </View>
             {e.content ? <Text style={globalStyles.memoryText}>{e.content}</Text> : null}
