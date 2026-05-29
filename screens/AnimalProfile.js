@@ -208,7 +208,7 @@ const uploadAnimalPhoto = async (uri) => {
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
           <Text style={[globalStyles.sectionTitle, { marginBottom: 16 }]}>MODIFIER LA FICHE</Text>
           {[
-            ['Nom', 'name', 'Nom de l'animal'],
+            ['Nom', 'name', "Nom de l'animal"],
             ['Espèce', 'species', 'Chien, Chat...'],
             ['Race', 'breed', 'Labrador...'],
             ['Date de naissance', 'birthdate', 'YYYY-MM-DD'],
