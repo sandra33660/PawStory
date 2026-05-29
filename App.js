@@ -16,6 +16,7 @@ import AnimalProfile from './screens/AnimalProfile.js';
 import BottomNav from './components/BottomNav.js';
 import Profile from './screens/Profile.js';
 import PrivacyPolicy from './screens/PrivacyPolicy.js';
+import PetGuide from './screens/PetGuide.js';
 import LegalNotice from './screens/LegalNotice.js';
  
 // Styles
@@ -30,6 +31,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
  
   useEffect(() => {
     const init = async () => {
@@ -81,6 +83,7 @@ export default function App() {
   );
  
   if (showPrivacy) return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />;
+  if (showGuide) return <PetGuide onBack={() => setShowGuide(false)} />;
   if (showLegal) return <LegalNotice onBack={() => setShowLegal(false)} />;
 
   if (showProfile) return (
@@ -95,7 +98,7 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {tab === 'home' && <Home onProfile={() => setShowProfile(true)} />}
+        {tab === 'home' && <Home onProfile={() => setShowProfile(true)} onGuide={() => setShowGuide(true)} />}
         {tab === 'animal' && <AnimalProfile />}
         {tab === 'journal' && <Journal />}
         {tab === 'health' && <Health />}
