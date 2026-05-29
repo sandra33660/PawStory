@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
@@ -67,6 +67,20 @@ export default function Health() {
     return new Date(due_date) - new Date() < 1000 * 60 * 60 * 24 * 3;
   };
  
+  const deleteReminder = async (reminder) => {
+    Alert.alert(
+      'Supprimer ce rappel ?',
+      `"${reminder.title}" sera définitivement supprimé.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Supprimer', style: 'destructive', onPress: async () => {
+          await supabase.from('health_reminders').delete().eq('id', reminder.id);
+          setReminders(reminders.filter(r => r.id !== reminder.id));
+        }},
+      ]
+    );
+  };
+
   if (showForm) return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <BackHeader title="Nouveau rappel" color={colors.health} onBack={() => {
@@ -159,6 +173,10 @@ export default function Health() {
                 </Text>
               </View>
               {urgent && !isDone && <View style={globalStyles.urgentBadge}><Text style={globalStyles.urgentText}>Urgent</Text></View>}
+              <TouchableOpacity onPress={() => deleteReminder(r)}
+                style={{ marginLeft: 8, padding: 6 }}>
+                <Text style={{ fontSize: 16 }}>🗑️</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => toggleDone(r.id)}
                 style={[globalStyles.checkbox, { borderColor: urgent ? colors.urgent : colors.health, backgroundColor: isDone ? colors.health : 'transparent', marginLeft: 8 }]}>
                 {isDone && <Text style={{ color: 'white' }}>✓</Text>}

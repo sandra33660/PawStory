@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Image, Share } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Image, Share, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
@@ -99,6 +99,24 @@ export default function Journal() {
     setSaving(false);
   };
  
+  const deleteEntry = async (entry) => {
+    Alert.alert(
+      'Supprimer ce souvenir ?',
+      `"${entry.title}" sera définitivement supprimé.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Supprimer', style: 'destructive', onPress: async () => {
+          if (entry.photo_url) {
+            const filename = entry.photo_url.split('/photos/')[1]?.split('?')[0];
+            if (filename) await supabase.storage.from('photos').remove([filename]);
+          }
+          await supabase.from('journal_entries').delete().eq('id', entry.id);
+          setEntries(entries.filter(e => e.id !== entry.id));
+        }},
+      ]
+    );
+  };
+
   if (showForm) return (
     <KeyboardAvoidingView key={formKey} style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <BackHeader
@@ -180,14 +198,21 @@ export default function Journal() {
               </View>
             </View>
             {e.content ? <Text style={globalStyles.memoryText}>{e.content}</Text> : null}
-            <TouchableOpacity
-              onPress={() => Share.share({
-                message: `${e.emoji || '🐾'} ${e.title}\n${e.entry_date}${e.content ? '\n\n' + e.content : ''}`,
-                url: e.photo_url || undefined,
-              })}
-              style={{ alignSelf: 'flex-end', marginTop: 8, backgroundColor: '#f0f0f0', borderRadius: 10, padding: 8, paddingHorizontal: 14 }}>
-              <Text style={{ fontSize: 13, color: '#666' }}>📤 Partager</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+              <TouchableOpacity
+                onPress={() => Share.share({
+                  message: `${e.emoji || '🐾'} ${e.title}\n${e.entry_date}${e.content ? '\n\n' + e.content : ''}`,
+                  url: e.photo_url || undefined,
+                })}
+                style={{ backgroundColor: '#f0f0f0', borderRadius: 10, padding: 8, paddingHorizontal: 14 }}>
+                <Text style={{ fontSize: 13, color: '#666' }}>📤 Partager</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => deleteEntry(e)}
+                style={{ backgroundColor: '#FFE8E8', borderRadius: 10, padding: 8, paddingHorizontal: 14 }}>
+                <Text style={{ fontSize: 13, color: '#E07A5F' }}>🗑️ Supprimer</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
  
