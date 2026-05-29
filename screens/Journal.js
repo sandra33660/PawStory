@@ -8,10 +8,29 @@ import BackHeader from '../components/BackHeader';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
+import ViewShot, { captureRef } from 'react-native-view-shot';
+import { useRef } from 'react';
 import { decode } from 'base64-arraybuffer';
  
 const emojis = ['🐾', '🌲', '🎂', '☀️', '🌊', '❤️', '🏠', '✈️', '🎉', '💊'];
  
+const MemoryCard = ({ entry, onCapture }) => {
+  const cardRef = useRef(null);
+  return (
+    <ViewShot ref={cardRef} options={{ format: 'jpg', quality: 0.9 }}
+      style={{ position: 'absolute', left: -9999, backgroundColor: 'white', width: 340, borderRadius: 16, overflow: 'hidden' }}>
+      {entry.photo_url && <Image source={{ uri: entry.photo_url }} style={{ width: '100%', height: 200 }} />}
+      <View style={{ padding: 16 }}>
+        <Text style={{ fontSize: 28, marginBottom: 8 }}>{entry.emoji || '🐾'}</Text>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#3A2E26', marginBottom: 4 }}>{entry.title}</Text>
+        <Text style={{ fontSize: 12, color: '#A08060', marginBottom: 8 }}>{entry.entry_date}</Text>
+        {entry.content ? <Text style={{ fontSize: 14, color: '#7A6651', lineHeight: 20 }}>{entry.content}</Text> : null}
+        <Text style={{ fontSize: 11, color: '#C4956A', marginTop: 12, textAlign: 'right' }}>🐾 PawStory</Text>
+      </View>
+    </ViewShot>
+  );
+};
+
 export default function Journal() {
   const [selectedEmoji, setSelectedEmoji] = useState('🐾');
   const [title, setTitle] = useState('');
@@ -100,26 +119,20 @@ export default function Journal() {
     setSaving(false);
   };
  
+  const cardRefs = useRef({});
+
   const shareEntry = async (entry) => {
-    const message = `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`;
-    if (entry.photo_url) {
-      Alert.alert(
-        'Partager ce souvenir',
-        'Que voulez-vous partager ?',
-        [
-          { text: 'Annuler', style: 'cancel' },
-          { text: '📝 Texte', onPress: () => Share.share({ message }) },
-          { text: '📷 Photo', onPress: async () => {
-            try {
-              const localUri = FileSystem.cacheDirectory + 'share_photo.jpg';
-              await FileSystem.downloadAsync(entry.photo_url.split('?')[0], localUri);
-              await Sharing.shareAsync(localUri, { mimeType: 'image/jpeg', dialogTitle: entry.title });
-            } catch (e) { console.error(e); }
-          }},
-        ]
-      );
-    } else {
-      await Share.share({ message });
+    try {
+      const ref = cardRefs.current[entry.id];
+      if (ref) {
+        const uri = await captureRef(ref, { format: 'jpg', quality: 0.9 });
+        await Sharing.shareAsync(uri, { mimeType: 'image/jpeg', dialogTitle: entry.title });
+      } else {
+        const message = `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`;
+        await Share.share({ message });
+      }
+    } catch (e) {
+      console.error('Share error:', e);
     }
   };
 
@@ -211,6 +224,18 @@ export default function Journal() {
           </View>
         ) : entries.map((e, i) => (
           <View key={i} style={globalStyles.journalCard}>
+            <ViewShot ref={ref => { if (ref) cardRefs.current[e.id] = ref; }} 
+              options={{ format: 'jpg', quality: 0.9 }}
+              style={{ position: 'absolute', left: -9999, backgroundColor: 'white', width: 340, borderRadius: 16, overflow: 'hidden' }}>
+              {e.photo_url && <Image source={{ uri: e.photo_url }} style={{ width: '100%', height: 200 }} />}
+              <View style={{ padding: 16 }}>
+                <Text style={{ fontSize: 28, marginBottom: 8 }}>{e.emoji || '🐾'}</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#3A2E26', marginBottom: 4 }}>{e.title}</Text>
+                <Text style={{ fontSize: 12, color: '#A08060', marginBottom: 8 }}>{e.entry_date}</Text>
+                {e.content ? <Text style={{ fontSize: 14, color: '#7A6651', lineHeight: 20 }}>{e.content}</Text> : null}
+                <Text style={{ fontSize: 11, color: '#C4956A', marginTop: 12, textAlign: 'right' }}>🐾 PawStory</Text>
+              </View>
+            </ViewShot>
             {e.photo_url && (
               <Image source={{ uri: e.photo_url }} style={{ width: '100%', height: 180, borderRadius: 12, marginBottom: 12 }} />
             )}
