@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { requestPermissions, scheduleReminderNotification, cancelNotification } from '../utils/notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
@@ -23,7 +24,10 @@ export default function Health() {
   const [done, setDone] = useState([]);
   const [animalName, setAnimalName] = useState('votre animal');
  
-  useEffect(() => { loadReminders(); }, []);
+  useEffect(() => { 
+    loadReminders();
+    requestPermissions();
+  }, []);
  
   const loadReminders = async () => {
     setLoading(true);
@@ -46,13 +50,21 @@ export default function Health() {
       const { data: { user } } = await supabase.auth.getUser();
       const { data: animals } = await supabase.from('animals').select('id').eq('user_id', user.id).limit(1);
       if (animals && animals.length > 0) {
-        await supabase.from('health_reminders').insert({
+        const newReminder = {
           animal_id: animals[0].id,
           title: title.trim(),
           type,
           due_date: dueDate ? toSupabaseDate(dueDate) : null,
+        };
+        const { data: inserted } = await supabase.from('health_reminders').insert({...newReminder,
           repeat_every_days: repeat ? parseInt(repeat) : null,
         });
+        if (inserted && inserted[0]) {
+          const notifId = await scheduleReminderNotification(inserted[0]);
+          if (notifId) {
+            await supabase.from('health_reminders').update({ notification_id: notifId }).eq('id', inserted[0].id);
+          }
+        }
         setTitle(''); setDueDate(null); setRepeat('');
         setShowForm(false);
         loadReminders();
@@ -74,6 +86,7 @@ export default function Health() {
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'Supprimer', style: 'destructive', onPress: async () => {
+          await cancelNotification(reminder.notification_id);
           await supabase.from('health_reminders').delete().eq('id', reminder.id);
           setReminders(reminders.filter(r => r.id !== reminder.id));
         }},
