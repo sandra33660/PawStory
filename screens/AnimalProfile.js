@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Tex
 import { supabase } from '../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
-import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
 import * as ImagePicker from 'expo-image-picker';
