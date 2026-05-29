@@ -21,6 +21,7 @@ export default function Journal() {
   const [animalName, setAnimalName] = useState('votre animal');
   const [photo, setPhoto] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [formKey, setFormKey] = useState(0);
  
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -98,12 +99,18 @@ export default function Journal() {
   };
  
   if (showForm) return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView key={formKey} style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <BackHeader
         title="Nouveau souvenir"
         subtitle={`${animalName} 👑 · Aujourd'hui`}
         color={colors.journal}
-        onBack={() => setShowForm(false)}
+        onBack={() => {
+          setShowForm(false);
+          setTitle('');
+          setText('');
+          setSelectedEmoji('🐾');
+          setPhoto(null);
+        }}
         backLabel="✕ Annuler"
       />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 20, backgroundColor: colors.background }}>
@@ -175,7 +182,10 @@ export default function Journal() {
           </View>
         ))}
  
-        <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.journal, marginTop: 16 }]} onPress={() => setShowForm(true)}>
+        <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.journal, marginTop: 16 }]} onPress={() => {
+          setFormKey(k => k + 1);
+          setShowForm(true);
+        }}>
           <Text style={globalStyles.btnText}>+ Nouveau souvenir</Text>
         </TouchableOpacity>
       </ScrollView>
