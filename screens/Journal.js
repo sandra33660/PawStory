@@ -7,6 +7,7 @@ import { colors } from '../constants/colors';
 import BackHeader from '../components/BackHeader';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { decode } from 'base64-arraybuffer';
  
 const emojis = ['🐾', '🌲', '🎂', '☀️', '🌊', '❤️', '🏠', '✈️', '🎉', '💊'];
@@ -99,6 +100,28 @@ export default function Journal() {
     setSaving(false);
   };
  
+  const shareEntry = async (entry) => {
+    try {
+      if (entry.photo_url) {
+        const localUri = FileSystem.cacheDirectory + 'share_photo.jpg';
+        await FileSystem.downloadAsync(entry.photo_url.split('?')[0], localUri);
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(localUri, {
+            mimeType: 'image/jpeg',
+            dialogTitle: entry.title,
+          });
+          return;
+        }
+      }
+      await Share.share({
+        message: `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`,
+      });
+    } catch (e) {
+      console.error('Share error:', e);
+    }
+  };
+
   const deleteEntry = async (entry) => {
     Alert.alert(
       'Supprimer ce souvenir ?',
@@ -200,10 +223,7 @@ export default function Journal() {
             {e.content ? <Text style={globalStyles.memoryText}>{e.content}</Text> : null}
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
               <TouchableOpacity
-                onPress={() => Share.share({
-                  message: `${e.emoji || '🐾'} ${e.title}\n${e.entry_date}${e.content ? '\n\n' + e.content : ''}`,
-                  url: e.photo_url || undefined,
-                })}
+                onPress={() => shareEntry(e)}
                 style={{ backgroundColor: '#f0f0f0', borderRadius: 10, padding: 8, paddingHorizontal: 14 }}>
                 <Text style={{ fontSize: 13, color: '#666' }}>📤 Partager</Text>
               </TouchableOpacity>
