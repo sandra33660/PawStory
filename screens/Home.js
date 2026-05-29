@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
  
-export default function Home() {
+export default function Home({ onProfile }) {
   const [liked, setLiked] = useState(false);
   const [animal, setAnimal] = useState(null);
   const [memory, setMemory] = useState(null);
@@ -54,7 +54,10 @@ export default function Home() {
             <Text style={globalStyles.headerSub}>Bonjour Sandra 👋</Text>
             <Text style={globalStyles.headerTitle}>Comment va {animal ? animal.name : 'votre compagnon'} ?</Text>
           </View>
-          <Text style={{ fontSize: 32 }}>👑</Text>
+          <TouchableOpacity onPress={onProfile}
+            style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 8 }}>
+            <Text style={{ fontSize: 24 }}>👤</Text>
+          </TouchableOpacity>
         </View>
       </View>
  

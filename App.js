@@ -14,6 +14,7 @@ import AnimalProfile from './screens/AnimalProfile.js';
  
 // Components
 import BottomNav from './components/BottomNav.js';
+import Profile from './screens/Profile.js';
  
 // Styles
 import { colors } from './constants/colors';
@@ -24,6 +25,7 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [loading, setLoading] = useState(true);
   const [fromAuth, setFromAuth] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
  
   useEffect(() => {
     const init = async () => {
@@ -74,10 +76,17 @@ export default function App() {
     />
   );
  
+  if (showProfile) return (
+    <Profile
+      onBack={() => setShowProfile(false)}
+      onLogout={() => { setShowProfile(false); setScreen('welcome'); }}
+    />
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {tab === 'home' && <Home />}
+        {tab === 'home' && <Home onProfile={() => setShowProfile(true)} />}
         {tab === 'animal' && <AnimalProfile />}
         {tab === 'journal' && <Journal />}
         {tab === 'health' && <Health />}
