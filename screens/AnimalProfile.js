@@ -177,7 +177,7 @@ const uploadAnimalPhoto = async (uri) => {
               <Text style={{ color: 'white', fontSize: 28, fontWeight: '300' }}>{animal.name}</Text>
               <TouchableOpacity onPress={() => { setEditData({ ...animal, weight: animal.weight?.toString() }); setEditMode(true); }}
                 style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 10, padding: 8 }}>
-                <Text style={{ color: 'white', fontSize: 16 }}>✏️ Modifier</Text>
+                <Text style={{ fontSize: 20 }}>✏️</Text>
               </TouchableOpacity>
             </View>
             <Text style={{ color: colors.whiteAlpha80, fontSize: 14 }}>
