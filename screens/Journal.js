@@ -102,6 +102,7 @@ export default function Journal() {
  
   const shareEntry = async (entry) => {
     try {
+      const message = `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`;
       if (entry.photo_url) {
         const localUri = FileSystem.cacheDirectory + 'share_photo.jpg';
         await FileSystem.downloadAsync(entry.photo_url.split('?')[0], localUri);
@@ -110,13 +111,12 @@ export default function Journal() {
           await Sharing.shareAsync(localUri, {
             mimeType: 'image/jpeg',
             dialogTitle: entry.title,
+            UTI: 'public.jpeg',
           });
           return;
         }
       }
-      await Share.share({
-        message: `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`,
-      });
+      await Share.share({ message });
     } catch (e) {
       console.error('Share error:', e);
     }
@@ -144,7 +144,7 @@ export default function Journal() {
     <KeyboardAvoidingView key={formKey} style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <BackHeader
         title="Nouveau souvenir"
-        subtitle={`${animalName} 👑 · {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+        subtitle={`${animalName} 👑 · ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`}
         color={colors.journal}
         onBack={() => {
           setShowForm(false);

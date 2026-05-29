@@ -8,9 +8,10 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
  
-export default function AnimalProfile() {
+export default function AnimalProfile({ onGuide }) {
   const [tab, setTab] = useState('infos');
   const [editMode, setEditMode] = useState(false);
+  const [filterPhotos, setFilterPhotos] = useState(false);
   const [editData, setEditData] = useState({});
   const [animal, setAnimal] = useState(null);
   const [entries, setEntries] = useState([]);
@@ -171,21 +172,21 @@ const uploadAnimalPhoto = async (uri) => {
  
       {/* Stats */}
       <View style={globalStyles.statsBar}>
-        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => setTab('journal')}>
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => { setTab('journal'); setFilterPhotos(true); }}>
           <Text style={{ fontSize: 18 }}>📷</Text>
           <Text style={globalStyles.statVal}>{entries.filter(e => e.photo_url).length}</Text>
           <Text style={globalStyles.statLabel}>Photos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => setTab('journal')}>
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => { setTab('journal'); setFilterPhotos(false); }}>
           <Text style={{ fontSize: 18 }}>📖</Text>
           <Text style={globalStyles.statVal}>{entries.length}</Text>
           <Text style={globalStyles.statLabel}>Souvenirs</Text>
         </TouchableOpacity>
-        <View style={{ alignItems: 'center' }}>
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={onGuide}>
           <Text style={{ fontSize: 18 }}>🐾</Text>
           <Text style={globalStyles.statVal}>{age ? age.toString() : '?'}</Text>
           <Text style={globalStyles.statLabel}>Années</Text>
-        </View>
+        </TouchableOpacity>
       </View>
  
       {/* Tabs */}
@@ -250,11 +251,11 @@ const uploadAnimalPhoto = async (uri) => {
         ))}
  
         {tab === 'journal' && (
-          entries.length === 0 ? (
+          (filterPhotos ? entries.filter(e => e.photo_url) : entries).length === 0 ? (
             <Text style={{ textAlign: 'center', color: colors.textLight, marginTop: 40 }}>
               Aucun souvenir pour le moment
             </Text>
-          ) : entries.map((e, i) => (
+          ) : (filterPhotos ? entries.filter(e => e.photo_url) : entries).map((e, i) => (
             <View key={i} style={globalStyles.journalCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                 <Text style={globalStyles.journalEmoji}>{e.emoji || '🐾'}</Text>

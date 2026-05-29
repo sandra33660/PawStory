@@ -99,7 +99,7 @@ export default function App() {
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
         {tab === 'home' && <Home onProfile={() => setShowProfile(true)} onGuide={() => setShowGuide(true)} />}
-        {tab === 'animal' && <AnimalProfile />}
+        {tab === 'animal' && <AnimalProfile onGuide={() => setShowGuide(true)} />}
         {tab === 'journal' && <Journal />}
         {tab === 'health' && <Health />}
       </View>
