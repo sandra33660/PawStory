@@ -190,13 +190,13 @@ export default function Journal() {
           </View>
         ))}
  
-        <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.journal, marginTop: 16 }]} onPress={() => {
-          setFormKey(k => k + 1);
-          setShowForm(true);
-        }}>
-          <Text style={globalStyles.btnText}>+ Nouveau souvenir</Text>
-        </TouchableOpacity>
+
       </ScrollView>
+      <TouchableOpacity
+        onPress={() => { setFormKey(k => k + 1); setShowForm(true); }}
+        style={{ position: 'absolute', bottom: 24, right: 24, backgroundColor: colors.journal, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', elevation: 6 }}>
+        <Text style={{ color: 'white', fontSize: 28, lineHeight: 32 }}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
