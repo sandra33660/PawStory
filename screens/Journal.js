@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Image, Share } from 'react-native';
 import { supabase } from '../lib/supabase';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
@@ -179,6 +179,14 @@ export default function Journal() {
               </View>
             </View>
             {e.content ? <Text style={globalStyles.memoryText}>{e.content}</Text> : null}
+            <TouchableOpacity
+              onPress={() => Share.share({
+                message: `${e.emoji || '🐾'} ${e.title}\n${e.entry_date}${e.content ? '\n\n' + e.content : ''}`,
+                url: e.photo_url || undefined,
+              })}
+              style={{ alignSelf: 'flex-end', marginTop: 8, backgroundColor: '#f0f0f0', borderRadius: 10, padding: 8, paddingHorizontal: 14 }}>
+              <Text style={{ fontSize: 13, color: '#666' }}>📤 Partager</Text>
+            </TouchableOpacity>
           </View>
         ))}
  
