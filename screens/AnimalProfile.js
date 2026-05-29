@@ -248,6 +248,10 @@ const uploadAnimalPhoto = async (uri) => {
                 onChangeText={v => setEditData(d => ({ ...d, [key]: v }))}
                 placeholder={placeholder}
                 placeholderTextColor={colors.textDisabled}
+              />
+            </View>
+          ))}
+
           <View style={{ marginBottom: 12 }}>
             <Text style={globalStyles.infoLabel}>Date de naissance</Text>
             <TouchableOpacity style={globalStyles.input} onPress={() => setShowDatePicker(true)}>
