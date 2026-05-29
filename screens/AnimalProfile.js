@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
 import { formatDateFR } from '../utils/dateUtils';
 import globalStyles from '../styles/global';
 import { colors } from '../constants/colors';
@@ -12,6 +14,7 @@ export default function AnimalProfile({ onGuide }) {
   const [tab, setTab] = useState('infos');
   const [editMode, setEditMode] = useState(false);
   const [filterPhotos, setFilterPhotos] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [editData, setEditData] = useState({});
   const [animal, setAnimal] = useState(null);
   const [entries, setEntries] = useState([]);

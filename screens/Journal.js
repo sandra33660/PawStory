@@ -101,24 +101,25 @@ export default function Journal() {
   };
  
   const shareEntry = async (entry) => {
-    try {
-      const message = `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`;
-      if (entry.photo_url) {
-        const localUri = FileSystem.cacheDirectory + 'share_photo.jpg';
-        await FileSystem.downloadAsync(entry.photo_url.split('?')[0], localUri);
-        const canShare = await Sharing.isAvailableAsync();
-        if (canShare) {
-          await Sharing.shareAsync(localUri, {
-            mimeType: 'image/jpeg',
-            dialogTitle: entry.title,
-            UTI: 'public.jpeg',
-          });
-          return;
-        }
-      }
+    const message = `${entry.emoji || '🐾'} ${entry.title}\n${entry.entry_date}${entry.content ? '\n\n' + entry.content : ''}`;
+    if (entry.photo_url) {
+      Alert.alert(
+        'Partager ce souvenir',
+        'Que voulez-vous partager ?',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: '📝 Texte', onPress: () => Share.share({ message }) },
+          { text: '📷 Photo', onPress: async () => {
+            try {
+              const localUri = FileSystem.cacheDirectory + 'share_photo.jpg';
+              await FileSystem.downloadAsync(entry.photo_url.split('?')[0], localUri);
+              await Sharing.shareAsync(localUri, { mimeType: 'image/jpeg', dialogTitle: entry.title });
+            } catch (e) { console.error(e); }
+          }},
+        ]
+      );
+    } else {
       await Share.share({ message });
-    } catch (e) {
-      console.error('Share error:', e);
     }
   };
 
