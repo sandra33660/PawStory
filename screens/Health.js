@@ -69,7 +69,12 @@ export default function Health() {
  
   if (showForm) return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <BackHeader title="Nouveau rappel" color={colors.health} onBack={() => setShowForm(false)} backLabel="✕ Annuler" />
+      <BackHeader title="Nouveau rappel" color={colors.health} onBack={() => {
+          setShowForm(false);
+          setTitle('');
+          setDueDate(null);
+          setRepeat('');
+        }} backLabel="✕ Annuler"  />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40, backgroundColor: colors.background }}>
         <Text style={globalStyles.sectionTitle}>TYPE</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
@@ -162,7 +167,12 @@ export default function Health() {
           );
         })}
  
-        <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.health, marginTop: 16 }]} onPress={() => setShowForm(true)}>
+        <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.health, marginTop: 16 }]} onPress={() => {
+          setTitle('');
+          setDueDate(null);
+          setRepeat('');
+          setShowForm(true);
+        }}>
           <Text style={globalStyles.btnText}>+ Ajouter un rappel</Text>
         </TouchableOpacity>
       </ScrollView>
