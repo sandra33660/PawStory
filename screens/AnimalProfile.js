@@ -162,17 +162,21 @@ const uploadAnimalPhoto = async (uri) => {
  
       {/* Stats */}
       <View style={globalStyles.statsBar}>
-        {[
-          ['📷', '0', 'Photos'],
-          ['📖', entries.length.toString(), 'Souvenirs'],
-          ['🐾', age ? age.toString() : '?', 'Années'],
-        ].map(([icon, val, label], i) => (
-          <View key={i} style={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 18 }}>{icon}</Text>
-            <Text style={globalStyles.statVal}>{val}</Text>
-            <Text style={globalStyles.statLabel}>{label}</Text>
-          </View>
-        ))}
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => setTab('journal')}>
+          <Text style={{ fontSize: 18 }}>📷</Text>
+          <Text style={globalStyles.statVal}>{entries.filter(e => e.photo_url).length}</Text>
+          <Text style={globalStyles.statLabel}>Photos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => setTab('journal')}>
+          <Text style={{ fontSize: 18 }}>📖</Text>
+          <Text style={globalStyles.statVal}>{entries.length}</Text>
+          <Text style={globalStyles.statLabel}>Souvenirs</Text>
+        </TouchableOpacity>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 18 }}>🐾</Text>
+          <Text style={globalStyles.statVal}>{age ? age.toString() : '?'}</Text>
+          <Text style={globalStyles.statLabel}>Années</Text>
+        </View>
       </View>
  
       {/* Tabs */}
