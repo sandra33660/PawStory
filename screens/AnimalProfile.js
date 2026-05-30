@@ -56,6 +56,29 @@ if (loading) return (
   </View>
 );
 
+const createAnimal = async () => {
+    Alert.alert('Début création', 'Nom: ' + (newAnimal.name || 'vide') + ' Espèce: ' + (newAnimal.species || 'vide'));
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.from('animals').insert({
+        user_id: user.id,
+        name: newAnimal.name || 'Mon animal',
+        species: newAnimal.species || '',
+        breed: newAnimal.breed || '',
+        birthdate: newAnimal.birthdate || null,
+        weight: newAnimal.weight ? parseFloat(newAnimal.weight) : null,
+        vet_name: newAnimal.vet_name || '',
+        nickname: newAnimal.nickname || '',
+      }).select().single();
+      if (error) throw error;
+      setAnimal(data);
+      setCreateMode(false);
+      setNewAnimal({});
+    } catch (e) {
+      Alert.alert('Erreur création', JSON.stringify(e));
+    }
+  };
+
   if (!animal) return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={[globalStyles.header, { backgroundColor: colors.primary }]}>
@@ -161,29 +184,6 @@ if (loading) return (
     if (!result.canceled) await uploadAnimalPhoto(result.assets[0].uri);
   };
  
-const createAnimal = async () => {
-    Alert.alert('Début création', 'Nom: ' + (newAnimal.name || 'vide') + ' Espèce: ' + (newAnimal.species || 'vide'));
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.from('animals').insert({
-        user_id: user.id,
-        name: newAnimal.name || 'Mon animal',
-        species: newAnimal.species || '',
-        breed: newAnimal.breed || '',
-        birthdate: newAnimal.birthdate || null,
-        weight: newAnimal.weight ? parseFloat(newAnimal.weight) : null,
-        vet_name: newAnimal.vet_name || '',
-        nickname: newAnimal.nickname || '',
-      }).select().single();
-      if (error) throw error;
-      setAnimal(data);
-      setCreateMode(false);
-      setNewAnimal({});
-    } catch (e) {
-      Alert.alert('Erreur création', JSON.stringify(e));
-    }
-  };
-
 const saveEdit = async () => {
     try {
       await supabase.from('animals').update({
