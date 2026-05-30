@@ -114,7 +114,7 @@ if (loading) return (
             )}
           </View>
           <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.primary }]} onPress={createAnimal}>
-            <Text style={globalStyles.btnText}>Créer le profil</Text>
+            <Text style={globalStyles.btnText}>Créer 🐾 TEST</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[globalStyles.btnOutline, { borderColor: colors.primary, marginTop: 8 }]} onPress={() => setCreateMode(false)}>
             <Text style={[globalStyles.btnOutlineText, { color: colors.primary }]}>Annuler</Text>
