@@ -162,6 +162,7 @@ if (loading) return (
   };
  
 const createAnimal = async () => {
+    console.log('createAnimal appelé', newAnimal);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase.from('animals').insert({
