@@ -159,6 +159,28 @@ if (loading) return (
     if (!result.canceled) await uploadAnimalPhoto(result.assets[0].uri);
   };
  
+const createAnimal = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.from('animals').insert({
+        user_id: user.id,
+        name: newAnimal.name || 'Mon animal',
+        species: newAnimal.species || '',
+        breed: newAnimal.breed || '',
+        birthdate: newAnimal.birthdate || null,
+        weight: newAnimal.weight ? parseFloat(newAnimal.weight) : null,
+        vet_name: newAnimal.vet_name || '',
+        nickname: newAnimal.nickname || '',
+      }).select().single();
+      if (error) throw error;
+      setAnimal(data);
+      setCreateMode(false);
+      setNewAnimal({});
+    } catch (e) {
+      Alert.alert('Erreur', 'Impossible de créer le profil : ' + e.message);
+    }
+  };
+
 const saveEdit = async () => {
     try {
       await supabase.from('animals').update({
