@@ -162,7 +162,7 @@ if (loading) return (
   };
  
 const createAnimal = async () => {
-    console.log('createAnimal appelé', newAnimal);
+    Alert.alert('Début création', 'Nom: ' + (newAnimal.name || 'vide') + ' Espèce: ' + (newAnimal.species || 'vide'));
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase.from('animals').insert({
@@ -180,7 +180,7 @@ const createAnimal = async () => {
       setCreateMode(false);
       setNewAnimal({});
     } catch (e) {
-      Alert.alert('Erreur', 'Impossible : ' + e.message);
+      Alert.alert('Erreur création', JSON.stringify(e));
     }
   };
 
