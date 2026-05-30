@@ -12,6 +12,9 @@ import { decode } from 'base64-arraybuffer';
 export default function AnimalProfile({ onGuide }) {
   const [tab, setTab] = useState('infos');
   const [editMode, setEditMode] = useState(false);
+  const [createMode, setCreateMode] = useState(false);
+  const [newAnimal, setNewAnimal] = useState({});
+  const [showNewDatePicker, setShowNewDatePicker] = useState(false);
   const [filterPhotos, setFilterPhotos] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [editData, setEditData] = useState({});

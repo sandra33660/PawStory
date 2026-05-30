@@ -51,17 +51,17 @@ export default function Home({ onProfile, onGuide }) {
       <View style={globalStyles.header}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={globalStyles.headerSub}>Bonjour Sandra 👋</Text>
+            <Text style={[globalStyles.headerSub, { fontSize: 12 }]}>Bonjour 👋</Text>
             <Text style={globalStyles.headerTitle}>Comment va {animal ? animal.name : 'votre compagnon'} ?</Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
             <TouchableOpacity onPress={onGuide}
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 8 }}>
-              <Text style={{ fontSize: 24 }}>📚</Text>
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 16, padding: 6 }}>
+              <Text style={{ fontSize: 20 }}>📚</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={onProfile}
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 8 }}>
-              <Text style={{ fontSize: 24 }}>👤</Text>
+              style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 16, padding: 6 }}>
+              <Text style={{ fontSize: 20 }}>👤</Text>
             </TouchableOpacity>
           </View>
         </View>
