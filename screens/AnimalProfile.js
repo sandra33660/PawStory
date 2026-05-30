@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { supabase } from '../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDateFR, toSupabaseDate } from '../utils/dateUtils';
@@ -71,6 +71,7 @@ if (loading) return (
           </TouchableOpacity>
         </View>
       ) : (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
           <Text style={[globalStyles.sectionTitle, { marginBottom: 16 }]}>PROFIL DE TON ANIMAL</Text>
           {[
@@ -119,6 +120,7 @@ if (loading) return (
             <Text style={[globalStyles.btnOutlineText, { color: colors.primary }]}>Annuler</Text>
           </TouchableOpacity>
         </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </View>
   );
@@ -177,7 +179,7 @@ const createAnimal = async () => {
       setCreateMode(false);
       setNewAnimal({});
     } catch (e) {
-      Alert.alert('Erreur', 'Impossible de créer le profil : ' + e.message);
+      Alert.alert('Erreur', 'Impossible : ' + e.message);
     }
   };
 
