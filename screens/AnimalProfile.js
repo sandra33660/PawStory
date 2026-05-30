@@ -55,13 +55,75 @@ if (loading) return (
     <ActivityIndicator size="large" color={colors.primary} />
   </View>
 );
- 
+
   if (!animal) return (
-  <View style={globalStyles.center}>
-    <Text style={{ fontSize: 60, marginBottom: 16 }}>🐾</Text>
-    <Text style={{ fontSize: 18, color: colors.textDark }}>Aucun animal ajouté</Text>
-  </View>
-);
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={[globalStyles.header, { backgroundColor: colors.primary }]}>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '300' }}>Mon compagnon</Text>
+      </View>
+      {!createMode ? (
+        <View style={globalStyles.center}>
+          <Text style={{ fontSize: 60, marginBottom: 16 }}>🐾</Text>
+          <Text style={{ fontSize: 18, color: colors.textDark, marginBottom: 8 }}>Aucun animal ajouté</Text>
+          <Text style={{ fontSize: 14, color: colors.textLight, marginBottom: 32, textAlign: 'center' }}>Crée le profil de ton compagnon !</Text>
+          <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.primary, width: '80%' }]} onPress={() => setCreateMode(true)}>
+            <Text style={globalStyles.btnText}>+ Ajouter mon animal</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
+          <Text style={[globalStyles.sectionTitle, { marginBottom: 16 }]}>PROFIL DE TON ANIMAL</Text>
+          {[
+            ['Nom *', 'name', "Nom de l'animal"],
+            ['Surnom', 'nickname', 'Petit nom...'],
+            ['Espèce *', 'species', 'Chien, Chat, Lapin...'],
+            ['Race', 'breed', 'Labrador...'],
+            ['Poids (kg)', 'weight', '24'],
+            ['Vétérinaire', 'vet_name', 'Nom du vétérinaire'],
+          ].map(([label, key, placeholder]) => (
+            <View key={key} style={{ marginBottom: 12 }}>
+              <Text style={globalStyles.infoLabel}>{label}</Text>
+              <TextInput
+                style={globalStyles.input}
+                value={newAnimal[key] || ''}
+                onChangeText={v => setNewAnimal(d => ({ ...d, [key]: v }))}
+                placeholder={placeholder}
+                placeholderTextColor={colors.textDisabled}
+              />
+            </View>
+          ))}
+          <View style={{ marginBottom: 12 }}>
+            <Text style={globalStyles.infoLabel}>Date de naissance</Text>
+            <TouchableOpacity style={globalStyles.input} onPress={() => setShowNewDatePicker(true)}>
+              <Text style={{ color: newAnimal.birthdate ? colors.textDark : colors.textDisabled, fontSize: 15 }}>
+                {newAnimal.birthdate ? formatDateFR(newAnimal.birthdate) : 'Sélectionner une date...'}
+              </Text>
+            </TouchableOpacity>
+            {showNewDatePicker && (
+              <DateTimePicker
+                value={newAnimal.birthdate ? new Date(newAnimal.birthdate) : new Date()}
+                mode="date"
+                display="default"
+                maximumDate={new Date()}
+                onChange={(event, date) => {
+                  setShowNewDatePicker(false);
+                  if (date) setNewAnimal(d => ({ ...d, birthdate: toSupabaseDate(date) }));
+                }}
+              />
+            )}
+          </View>
+          <TouchableOpacity style={[globalStyles.btn, { backgroundColor: colors.primary }]} onPress={createAnimal}>
+            <Text style={globalStyles.btnText}>Créer le profil</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[globalStyles.btnOutline, { borderColor: colors.primary, marginTop: 8 }]} onPress={() => setCreateMode(false)}>
+            <Text style={[globalStyles.btnOutlineText, { color: colors.primary }]}>Annuler</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
+    </View>
+  );
+
+ 
   const age = getAge(animal.birthdate);
   const humanAge = getHumanAge(animal.birthdate, animal.species);
  

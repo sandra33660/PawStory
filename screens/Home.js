@@ -52,7 +52,7 @@ export default function Home({ onProfile, onGuide }) {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
             <Text style={[globalStyles.headerSub, { fontSize: 12 }]}>Bonjour 👋</Text>
-            <Text style={globalStyles.headerTitle}>Comment va {animal ? animal.name : 'votre compagnon'} ?</Text>
+            <Text style={[globalStyles.headerTitle, { fontSize: 16 }]} numberOfLines={1}>Comment va {animal ? animal.name : 'votre compagnon'} ?</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             <TouchableOpacity onPress={onGuide}
